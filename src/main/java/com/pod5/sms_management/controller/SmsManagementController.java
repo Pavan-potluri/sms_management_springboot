@@ -24,13 +24,13 @@ public class SmsManagementController {
     public ResponseEntity<String> registerEmployee(@RequestBody SmsEmployee smsEmployee) {
 
         try {
-            smsService.saveEmployee(smsEmployee);
+            smsService.createEmployee(smsEmployee);
             return new ResponseEntity<>("Employee Created successfully", HttpStatus.OK);
         } catch (Exception e) {
-            String errorMessage = "Failed to create employee";
+            String errorMessage = e.getMessage();
 //            HttpHeaders headers = new HttpHeaders();
 //            headers.add("Message", errorMessage); // You can set a custom header for the message if needed
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
         }
 
     }

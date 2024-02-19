@@ -25,8 +25,9 @@ public class  SmsService {
     @Autowired
     private SessionRepo sessionRepo;
 
-    public void saveEmployee(SmsEmployee smsEmployee) {
-        if ("admin".equals(smsEmployee.getDepartment().toLowerCase())) {
+    public void saveEmployee(SmsEmployee smsEmployee){
+
+         if ("admin".equals(smsEmployee.getDepartment().toLowerCase())) {
             String userName = smsEmployee.getFirstName();
             String password = generatePassword(smsEmployee.getLastName(), smsEmployee.getFirstName());
 
@@ -34,6 +35,12 @@ public class  SmsService {
             smsEmployee.setUserName(userName);
         }
         smsRepo.save(smsEmployee);
+    }
+    public void createEmployee(SmsEmployee smsEmployee) throws CurrentUserException{
+        Optional<SmsEmployee> smsEmployee1 = smsRepo.findByEmail(smsEmployee.getEmail());
+        if(smsEmployee1.isPresent()){
+            throw new CurrentUserException("User details are already added");
+        }else saveEmployee(smsEmployee);
     }
     public void updateEmployee(SmsEmployee smsEmployee){
         saveEmployee(smsEmployee);
@@ -78,10 +85,7 @@ public void deleteEmployee(int id) {
 
         Optional<SmsEmployee> optionalSmsEmployee = smsRepo.findByUserName(logIn.getUserName());
 
-        if(logIn.getPassword() == null || logIn.getUserName() == null)
-        {
-            throw new CurrentUserException("Missing Username or password fields");
-        }
+
 
         if (optionalSmsEmployee.isPresent() ){
 

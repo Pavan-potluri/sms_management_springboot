@@ -14,5 +14,7 @@ public interface SmsRepo extends JpaRepository<SmsEmployee, Integer> {
 
     public Optional<SmsEmployee> findByUserName(String userName);
 
+    public Optional<SmsEmployee> findByEmail(String email);
+
 
 }
