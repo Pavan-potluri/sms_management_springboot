@@ -35,8 +35,6 @@ public class SmsEmployee {
     private String password;
 
 
-
-
 //    @OneToOne(cascade = CascadeType.ALL)
 //    @JoinColumn(name = "cred_id", referencedColumnName = "id")
 //    @JsonIgnore
