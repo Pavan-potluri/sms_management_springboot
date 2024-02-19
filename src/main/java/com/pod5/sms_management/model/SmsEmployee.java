@@ -27,7 +27,7 @@ public class SmsEmployee {
     private String lastName;
     //private String designation;
     private String department;
-    private LocalDate dateOfBirth;
+  //  private LocalDate dateOfBirth;
    // private long phoneNumber;
     private String email;
     private String userName;

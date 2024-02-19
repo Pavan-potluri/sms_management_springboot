@@ -8,6 +8,7 @@ import com.pod5.sms_management.model.LogIn;
 import com.pod5.sms_management.model.SmsEmployee;
 import com.pod5.sms_management.service.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +22,28 @@ public class SmsManagementController {
 
     @PostMapping("/create")
     public ResponseEntity<String> registerEmployee(@RequestBody SmsEmployee smsEmployee) {
-        smsService.saveEmployee(smsEmployee);
-        return new ResponseEntity<>("Employee Created successfully", HttpStatus.OK);
+
+        try {
+            smsService.saveEmployee(smsEmployee);
+            return new ResponseEntity<>("Employee Created successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            String errorMessage = "Failed to create employee";
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add("Message", errorMessage); // You can set a custom header for the message if needed
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        }
+
     }
 
     @GetMapping("/display")
     public ResponseEntity<List<SmsEmployee>> getAllEmployees() {
         List<SmsEmployee> employees = smsService.getAllEmployees();
+        if (employees.isEmpty()) {
+            String errorMessage = "Employee list is empty right now";
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Message", errorMessage); // You can set a custom header for the message if needed
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+        }
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
@@ -77,7 +93,7 @@ public class SmsManagementController {
             existingSmsEmployee.setLastName(smsEmployee.getLastName());
            // existingSmsEmployee.setDesignation(smsEmployee.getDesignation());
             existingSmsEmployee.setDepartment(smsEmployee.getDepartment());
-            existingSmsEmployee.setDateOfBirth(smsEmployee.getDateOfBirth());
+           // existingSmsEmployee.setDateOfBirth(smsEmployee.getDateOfBirth());
            // existingSmsEmployee.setPhoneNumber(smsEmployee.getPhoneNumber());
             existingSmsEmployee.setEmail(smsEmployee.getEmail());
             smsService.updateEmployee(existingSmsEmployee);
@@ -103,17 +119,37 @@ public class SmsManagementController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
     }
 
-    @PostMapping("/logIn")
-    public ResponseEntity<CurrentUserSession> logIn(@RequestBody LogIn logIn) throws CurrentUserException {
+//    @PostMapping("/logIn")
+//    public ResponseEntity<CurrentUserSession> logIn(@RequestBody LogIn logIn) throws CurrentUserException {
+//        CurrentUserSession session = smsService.logIn(logIn);
+//        return new ResponseEntity<CurrentUserSession>(session,HttpStatus.OK);
+//    }
+@PostMapping("/logIn")
+public ResponseEntity<?> logIn(@RequestBody LogIn logIn) {
+    try {
         CurrentUserSession session = smsService.logIn(logIn);
-        return new ResponseEntity<CurrentUserSession>(session,HttpStatus.OK);
+        return new ResponseEntity<>(session, HttpStatus.OK);
+    } catch (CurrentUserException e) {
+        String errorMessage = e.getMessage();
+       // HttpHeaders headers = new HttpHeaders();
+      //  headers.add("Authorization", errorMessage); // Set the error message as Authorization header
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
     }
-    @DeleteMapping("/logOut/{uuId}")
-    public ResponseEntity<String> logOut(@PathVariable("uuId") String uuId )throws CurrentUserException {
+}
+    @DeleteMapping("/logOut/{userName}")
+    public ResponseEntity<?> logOut(@PathVariable("userName") String userName )throws CurrentUserException {
+        try {
+            String message = smsService.logOut(userName);
+            return new ResponseEntity<String>(message,HttpStatus.OK);
+        }
+        catch (CurrentUserException e) {
+            String errorMessage = e.getMessage();
+            // HttpHeaders headers = new HttpHeaders();
+            //  headers.add("Authorization", errorMessage); // Set the error message as Authorization header
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
+        }
 
-        String message= smsService.logOut(uuId);
 
-        return new ResponseEntity<String>(message,HttpStatus.OK);
     }
 
 }

@@ -26,11 +26,13 @@ public class  SmsService {
     private SessionRepo sessionRepo;
 
     public void saveEmployee(SmsEmployee smsEmployee) {
+        if ("admin".equals(smsEmployee.getDepartment().toLowerCase())) {
+            String userName = smsEmployee.getFirstName();
+            String password = generatePassword(smsEmployee.getLastName(), smsEmployee.getFirstName());
 
-        String userName = smsEmployee.getFirstName();
-        String password = generatePassword(smsEmployee.getLastName(), smsEmployee.getDateOfBirth());
-        smsEmployee.setPassword(password);
-        smsEmployee.setUserName(userName);
+            smsEmployee.setPassword(password);
+            smsEmployee.setUserName(userName);
+        }
         smsRepo.save(smsEmployee);
     }
     public void updateEmployee(SmsEmployee smsEmployee){
@@ -46,9 +48,10 @@ public class  SmsService {
     }
 
 
-    private String generatePassword(String lastName, LocalDate dateOfBirth) {
+    private String generatePassword(String lastName, String firstName) {
         String suffix = lastName.substring(0, Math.min(lastName.length(), 3)).toLowerCase();
-        return suffix + "@" + dateOfBirth;
+        String prefix = firstName.substring(0,Math.min(firstName.length(),3)).toLowerCase();
+        return prefix + "@" + suffix;
     }
 
 
@@ -89,14 +92,14 @@ public void deleteEmployee(int id) {
                 Optional<CurrentUserSession > optionalSession = sessionRepo.findById(logIn.getUserName());
                 if(optionalSession.isEmpty()){
 
-                    String key = this.randomString();
+//                    String key = this.randomString();
 
-                    CurrentUserSession session = new CurrentUserSession(logIn.getUserName(), smsEmployee.getId(),key);
+                    CurrentUserSession session = new CurrentUserSession(logIn.getUserName(), smsEmployee.getId());
 
                     return sessionRepo.save(session);
 
                 }else{
-                    throw new CurrentUserException("User already present");
+                    throw new CurrentUserException("User already logged In");
                 }
 
             }else{
@@ -109,33 +112,33 @@ public void deleteEmployee(int id) {
 
     }
 
-    public String logOut(String uuId) throws CurrentUserException{
+    public String logOut(String userName) throws CurrentUserException{
 
 
-        Optional<CurrentUserSession> optionalCurrentUserSession = sessionRepo.findByUuId(uuId);
+        Optional<CurrentUserSession> optionalCurrentUserSession = sessionRepo.findByUserName(userName);
 
         if(optionalCurrentUserSession.isPresent()){
            CurrentUserSession session = optionalCurrentUserSession.get();
            sessionRepo.delete(session);
                     return "LogOut :"+session.getUserName();
         }else{
-            throw new CurrentUserException("Wrong UUID");
+            throw new CurrentUserException("Wrong UserName or Already Logged Out");
         }
     }
 
-    private String randomString(){
-        String aplha = "abcedefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%&";
-        int length = 6;
-        StringBuilder str = new StringBuilder();
-
-        Random random = new Random();
-
-        for(int i=0; i<length;i++){
-            int index = random.nextInt(aplha.length());
-            str.append(aplha.charAt(index));
-
-        }
-        return str.toString();
-    }
+//    private String randomString(){
+//        String aplha = "abcedefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%&";
+//        int length = 6;
+//        StringBuilder str = new StringBuilder();
+//
+//        Random random = new Random();
+//
+//        for(int i=0; i<length;i++){
+//            int index = random.nextInt(aplha.length());
+//            str.append(aplha.charAt(index));
+//
+//        }
+//        return str.toString();
+//    }
 
 }

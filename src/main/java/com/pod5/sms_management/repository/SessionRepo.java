@@ -9,6 +9,7 @@ import java.util.Optional;
 @Repository
 public interface SessionRepo extends JpaRepository<CurrentUserSession, String> {
 
-    public Optional<CurrentUserSession> findByUuId(String UuId);
+   // public Optional<CurrentUserSession> findByUuId(String UuId);
 
+    Optional<CurrentUserSession> findByUserName(String userName);
 }

@@ -16,6 +16,6 @@ public class CurrentUserSession {
     @Id
     private String userName;
     private int id;
-    private String uuId;
+    //private String uuId;
 
 }
