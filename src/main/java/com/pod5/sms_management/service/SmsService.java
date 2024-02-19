@@ -36,7 +36,7 @@ public class  SmsService {
         smsRepo.save(smsEmployee);
     }
     public void updateEmployee(SmsEmployee smsEmployee){
-        smsRepo.save(smsEmployee);
+        saveEmployee(smsEmployee);
     }
 
     public SmsEmployee getById(int id){
